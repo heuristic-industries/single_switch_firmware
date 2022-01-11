@@ -40,10 +40,8 @@ where
             timer.hold.reset();
 
             self.set_state(!self.active);
-        } else {
-            if timer.hold.threshold_reached {
-                self.set_state(false);
-            }
+        } else if timer.hold.threshold_reached {
+            self.set_state(false);
         }
     }
 
