@@ -1,0 +1,30 @@
+[package]
+name = "single_switch_firmware"
+version = "0.1.0"
+authors = ["Eric Wood <eric@ericwood.org>"]
+edition = "2018"
+rust-version = "1.51.0-nightly"
+
+[dependencies]
+panic-halt = "0.2.0"
+avr-device = "0.3.2"
+embedded-hal = "0.2.6"
+
+[dependencies.attiny-hal]
+git = "https://github.com/rahix/avr-hal"
+rev = "cf3a98a97a3157abd5f54ef8092df4d0e8b3982a"
+features = ["attiny85", "rt"]
+
+# Configure the build for minimal size
+[profile.dev]
+panic = "abort"
+lto = true
+opt-level = "s"
+debug-assertions = false
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+debug-assertions = false
