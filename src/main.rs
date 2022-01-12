@@ -11,14 +11,23 @@ use avr_device::interrupt::{free, Mutex};
 use cell::RefCell;
 use core::cell;
 
-mod switch;
-use switch::Switch;
+mod toggle_switch;
+use toggle_switch::ToggleSwitch;
+
+mod bypass_switch;
+use bypass_switch::BypassSwitch;
 
 mod timer;
 use timer::Timer;
 
 mod switch_timer;
 use switch_timer::SwitchTimer;
+
+mod eeprom;
+use eeprom::Eeprom;
+
+mod persistence;
+use persistence::Persistence;
 
 type InterruptFlag = Mutex<RefCell<bool>>;
 static TIMER_INTERRUPT: InterruptFlag = Mutex::new(RefCell::new(false));
@@ -28,6 +37,9 @@ static BUTTON_INTERRUPT: InterruptFlag = Mutex::new(RefCell::new(false));
 fn main() -> ! {
     let peripherals = attiny_hal::pac::Peripherals::take().unwrap();
     let pins = attiny_hal::port::Pins::new(peripherals.PORTB);
+
+    let mut persistence = Persistence::new(peripherals.EEPROM);
+    persistence.init();
 
     // Configure timer/counter 0 to count up and fire the TIMER0_COMPA
     // at a regular interval to act as a clock for our timers
@@ -39,18 +51,15 @@ fn main() -> ! {
     tc0.ocr0a.write(|w| unsafe { w.bits(124_u8) });
     tc0.timsk.write(|w| w.ocie0a().bit(true));
 
-    // Enable pin change interrupt for PB0 and PB1 to detect switch changes
+    // Enable pin change interrupt for PB3 to detect switch changes
     peripherals.EXINT.gimsk.write(|w| w.pcie().set_bit());
     peripherals
         .EXINT
         .pcmsk
-        .write(|w| unsafe { w.bits(0b00011000) });
+        .write(|w| unsafe { w.bits(0b00001000) });
 
     let mut bypass_timer = SwitchTimer::new();
-
-    let bypass_input = pins.pb3.into_pull_up_input();
-    let bypass_output = pins.pb0.into_output();
-    let mut bypass = Switch::new(bypass_input, bypass_output);
+    let mut bypass = BypassSwitch::new(pins, persistence.bypass_enabled);
 
     unsafe { avr_device::interrupt::enable() };
 
@@ -68,7 +77,7 @@ fn main() -> ! {
             bypass_timer.tick();
         }
         if button {
-            bypass.on_change(&mut bypass_timer);
+            bypass.on_change(&mut bypass_timer, &mut persistence);
         }
     }
 }

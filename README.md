@@ -9,9 +9,9 @@ Features:
 
 ## Building
 
-Like any Rust project, `cargo build --release` will compile the binaries.
+Like any Rust project, `cargo build` will compile the binaries.
 
-Optionally, as a convenience, you can use `cargo run`, which will build and attempt to flash the board using `avrdude`, although it's set to my preferred settings and may need tweaking (see `.cargo/config.toml`).
+Optionally, as a convenience, you can use `cargo run`, which will build and attempt to flash the board using `flash.sh`, which is specific to my toolchain and may need to be tweaked depending on your setup.
 
 ### Notes on compilation
 

@@ -2,34 +2,38 @@ use crate::SwitchTimer;
 use core::fmt::Debug;
 use embedded_hal::digital::v2::{InputPin, OutputPin};
 
-pub struct Switch<Input, Output> {
+pub struct ToggleSwitch<Input, Output> {
     input: Input,
     output: Output,
-    active: bool,
+    pub active: bool,
     previous_state: bool,
 }
 
-impl<Input, Output> Switch<Input, Output>
+impl<Input, Output> ToggleSwitch<Input, Output>
 where
     Input: InputPin,
     Output: OutputPin,
     Input::Error: Debug,
     Output::Error: Debug,
 {
-    pub fn new(input: Input, output: Output) -> Self {
-        Switch {
+    pub fn new(input: Input, output: Output, active: bool) -> Self {
+        ToggleSwitch {
             input,
             output,
-            active: false,
+            active,
             previous_state: false,
         }
     }
 
-    pub fn on_change(&mut self, timer: &mut SwitchTimer) {
+    pub fn init(&mut self) {
+        self.set_switch(self.active);
+    }
+
+    pub fn on_change(&mut self, timer: &mut SwitchTimer) -> bool {
         let pressed = self.is_pressed();
 
         if pressed == self.previous_state || !timer.debounce.threshold_reached {
-            return;
+            return false;
         }
 
         timer.debounce.reset();
@@ -43,6 +47,8 @@ where
         } else if timer.hold.threshold_reached {
             self.set_state(false);
         }
+
+        true
     }
 
     fn is_pressed(&mut self) -> bool {
