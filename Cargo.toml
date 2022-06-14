@@ -3,16 +3,15 @@ name = "single_switch_firmware"
 version = "0.1.0"
 authors = ["Eric Wood <eric@ericwood.org>"]
 edition = "2018"
-rust-version = "1.51.0-nightly"
 
 [dependencies]
 panic-halt = "0.2.0"
-avr-device = "0.3.2"
-embedded-hal = "0.2.6"
+avr-device = "0.3.3"
+embedded-hal = "0.2.7"
 
 [dependencies.attiny-hal]
 git = "https://github.com/rahix/avr-hal"
-rev = "cf3a98a97a3157abd5f54ef8092df4d0e8b3982a"
+rev = "e1418391ad44e8c9655abc7235891299c738e588"
 features = ["attiny85", "rt"]
 
 # Configure the build for minimal size

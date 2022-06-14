@@ -15,6 +15,4 @@ Optionally, as a convenience, you can use `cargo run`, which will build and atte
 
 ### Notes on compilation
 
-While Rust has official support for the AVR architecture now, there's an [LLVM bug](https://reviews.llvm.org/D114611) that prevents it from properly compiling.
-Unfortunately, this means we're stuck on a fairly old Rust nightly (I've been building with `1.51.0-nightly`).
-See [this Github issue](https://github.com/rust-lang/rust/issues/82104) for more information.
+Due to an LLVM bug that broke the AVR target, this project requires any nightly after 2022-05-09 (when it [was fixed](https://github.com/rust-lang/rust/pull/96845)).
