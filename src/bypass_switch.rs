@@ -1,17 +1,17 @@
 use crate::{Persistence, ToggleSwitch, SwitchTimer};
 use attiny_hal::port::{
     mode::{Input, Output, PullUp},
-    Pin, PB0, PB3,
+    Pin, PB3, PB4,
 };
 
 pub struct BypassSwitch {
-    switch: ToggleSwitch<Pin<Input<PullUp>, PB3>, Pin<Output, PB0>>,
+    switch: ToggleSwitch<Pin<Input<PullUp>, PB3>, Pin<Output, PB4>>,
 }
 
 impl BypassSwitch {
     pub fn new(pins: attiny_hal::port::Pins, active: bool) -> Self {
         let input = pins.pb3.into_pull_up_input();
-        let output = pins.pb0.into_output();
+        let output = pins.pb4.into_output();
         let mut switch = ToggleSwitch::new(input, output, active);
         switch.init();
 
