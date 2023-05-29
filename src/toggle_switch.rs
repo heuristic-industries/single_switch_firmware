@@ -1,12 +1,17 @@
 use crate::SwitchTimer;
+use attiny_hal::{clock, delay};
 use core::fmt::Debug;
-use embedded_hal::digital::v2::{InputPin, OutputPin};
+use embedded_hal::{
+    digital::v2::{InputPin, OutputPin},
+    prelude::_embedded_hal_blocking_delay_DelayMs,
+};
 
 pub struct ToggleSwitch<Input, Output> {
     input: Input,
     output: Output,
     pub active: bool,
     previous_state: bool,
+    delay: delay::Delay<clock::MHz1>,
 }
 
 impl<Input, Output> ToggleSwitch<Input, Output>
@@ -17,16 +22,21 @@ where
     Output::Error: Debug,
 {
     pub fn new(input: Input, output: Output, active: bool) -> Self {
+        let delay = delay::Delay::<clock::MHz1>::new();
+
         ToggleSwitch {
             input,
             output,
             active,
             previous_state: false,
+            delay,
         }
     }
 
     pub fn init(&mut self) {
-        self.set_switch(self.active);
+        if self.active {
+            self.pulse();
+        }
     }
 
     pub fn on_change(&mut self, timer: &mut SwitchTimer) -> bool {
@@ -57,14 +67,12 @@ where
 
     fn set_state(&mut self, state: bool) {
         self.active = state;
-        self.set_switch(state);
+        self.pulse();
     }
 
-    fn set_switch(&mut self, state: bool) {
-        if state {
-            self.output.set_high().unwrap();
-        } else {
-            self.output.set_low().unwrap();
-        }
+    fn pulse(&mut self) {
+        self.output.set_low().unwrap();
+        self.delay.delay_ms(100 as u8);
+        self.output.set_high().unwrap();
     }
 }
