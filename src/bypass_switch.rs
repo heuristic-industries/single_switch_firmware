@@ -1,4 +1,4 @@
-use crate::{Persistence, ToggleSwitch, SwitchTimer};
+use crate::{Persistence, SwitchTimer, ToggleSwitch};
 use attiny_hal::port::{
     mode::{Input, Output, PullUp},
     Pin, PB3, PB4,

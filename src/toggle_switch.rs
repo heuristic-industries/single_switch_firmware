@@ -71,8 +71,8 @@ where
     }
 
     fn pulse(&mut self) {
-        self.output.set_low().unwrap();
-        self.delay.delay_ms(100 as u8);
         self.output.set_high().unwrap();
+        self.delay.delay_ms(20 as u8);
+        self.output.set_low().unwrap();
     }
 }
