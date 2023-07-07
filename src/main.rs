@@ -47,15 +47,12 @@ fn main() -> ! {
     let tc0 = peripherals.TC0;
     tc0.tccr0a.write(|w| w.wgm0().ctc());
     tc0.tccr0b.write(|w| w.cs0().prescale_8());
-    tc0.ocr0a.write(|w| unsafe { w.bits(124_u8) });
+    tc0.ocr0a.write(|w| w.bits(124_u8));
     tc0.timsk.write(|w| w.ocie0a().bit(true));
 
     // Enable pin change interrupt for PB3 to detect switch changes
     peripherals.EXINT.gimsk.write(|w| w.pcie().set_bit());
-    peripherals
-        .EXINT
-        .pcmsk
-        .write(|w| unsafe { w.bits(0b00001000) });
+    peripherals.EXINT.pcmsk.write(|w| w.bits(0b00001000));
 
     let mut bypass_timer = SwitchTimer::new();
     let mut bypass = BypassSwitch::new(pins, persistence.bypass_enabled);

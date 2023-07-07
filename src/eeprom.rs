@@ -53,15 +53,15 @@ impl Eeprom {
 
     fn read_at(&mut self, address: u16) -> u8 {
         self.wait_for_write_complete();
-        self.peripheral.eear.write(|w| unsafe { w.bits(address) });
+        self.peripheral.eear.write(|w| w.bits(address));
         self.peripheral.eecr.write(|w| w.eere().set_bit());
         self.peripheral.eedr.read().bits()
     }
 
     fn write_at(&mut self, address: u16, value: u8) {
         self.wait_for_write_complete();
-        self.peripheral.eear.write(|w| unsafe { w.bits(address) });
-        self.peripheral.eedr.write(|w| unsafe { w.bits(value) });
+        self.peripheral.eear.write(|w| w.bits(address));
+        self.peripheral.eedr.write(|w| w.bits(value));
         self.peripheral
             .eecr
             .write(|w| w.eepm().write().eempe().set_bit());
@@ -70,7 +70,7 @@ impl Eeprom {
 
     fn erase_at(&mut self, address: u16) {
         self.wait_for_write_complete();
-        self.peripheral.eear.write(|w| unsafe { w.bits(address) });
+        self.peripheral.eear.write(|w| w.bits(address));
         self.peripheral
             .eecr
             .write(|w| w.eepm().erase().eempe().set_bit());

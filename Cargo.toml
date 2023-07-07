@@ -6,12 +6,12 @@ edition = "2018"
 
 [dependencies]
 panic-halt = "0.2.0"
-avr-device = "0.3.3"
-embedded-hal = "0.2.7"
+avr-device = "0.5.1"
+embedded-hal = "0.2.3"
 
 [dependencies.attiny-hal]
 git = "https://github.com/rahix/avr-hal"
-rev = "e1418391ad44e8c9655abc7235891299c738e588"
+rev = "7dfa6d322b9df98b2d98afe0e14a97afe0187ac1"
 features = ["attiny85", "rt"]
 
 # Configure the build for minimal size
