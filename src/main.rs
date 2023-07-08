@@ -13,9 +13,6 @@ use core::cell;
 mod toggle_switch;
 use toggle_switch::ToggleSwitch;
 
-mod bypass_switch;
-use bypass_switch::BypassSwitch;
-
 mod timer;
 use timer::Timer;
 
@@ -50,12 +47,19 @@ fn main() -> ! {
     tc0.ocr0a.write(|w| w.bits(124_u8));
     tc0.timsk.write(|w| w.ocie0a().bit(true));
 
-    // Enable pin change interrupt for PB3 to detect switch changes
+    // Enable pin change interrupt for PB1 and PB3 to detect switch changes
     peripherals.EXINT.gimsk.write(|w| w.pcie().set_bit());
-    peripherals.EXINT.pcmsk.write(|w| w.bits(0b00001000));
+    peripherals.EXINT.pcmsk.write(|w| w.bits(0b00001010));
 
-    let mut bypass_timer = SwitchTimer::new();
-    let mut bypass = BypassSwitch::new(pins, persistence.bypass_enabled);
+    let mut bypass_timer_1 = SwitchTimer::new();
+    let input1 = pins.pb3.into_pull_up_input();
+    let output1 = pins.pb4.into_output();
+    let mut switch1 = ToggleSwitch::new(input1, output1, persistence.switch1_enabled);
+
+    let mut bypass_timer_2 = SwitchTimer::new();
+    let input2 = pins.pb1.into_pull_up_input();
+    let output2 = pins.pb2.into_output();
+    let mut switch2 = ToggleSwitch::new(input2, output2, persistence.switch2_enabled);
 
     unsafe { avr_device::interrupt::enable() };
 
@@ -70,10 +74,19 @@ fn main() -> ! {
         });
 
         if timer {
-            bypass_timer.tick();
+            bypass_timer_1.tick();
+            bypass_timer_2.tick();
         }
         if button {
-            bypass.on_change(&mut bypass_timer, &mut persistence);
+            let did_change_1 = switch1.on_change(&mut bypass_timer_1);
+            if did_change_1 {
+                persistence.set_switch1_enabled(switch1.active)
+            }
+
+            let did_change_2 = switch2.on_change(&mut bypass_timer_2);
+            if did_change_2 {
+                persistence.set_switch2_enabled(switch2.active)
+            }
         }
     }
 }
